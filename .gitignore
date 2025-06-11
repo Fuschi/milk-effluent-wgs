@@ -1,0 +1,13 @@
+# Conda environments
+.env/
+.venv/
+.mamba/
+
+# Snakemake internals
+.snakemake/
+logs/
+*.err
+*.out
+
+# Dati
+snakestream/
