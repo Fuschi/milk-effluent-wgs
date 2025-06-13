@@ -6,37 +6,64 @@
 # - remove_host
 # ─────────────────────────────────────────────
 
-# Download Bos taurus host genome from UCSC
+# Download Bos taurus host genome from UCSC and build Bowtie2 index
 # ─────────────────────────────────────────────────────────────
 rule bostaurus_reference:
     output:
         fastagz = protected("snakestream/host/bosTau9.fa.gz"),
-        fasta = temp("snakestream/host/bosTau9.fa"),
+        fasta   = temp("snakestream/host/bosTau9.fa"),
         index_files = protected(expand("snakestream/host/bosTau9.{ext}", ext=[
             "1.bt2", "2.bt2", "3.bt2", "4.bt2", "rev.1.bt2", "rev.2.bt2"
         ]))
     log:
-        out = "logs/bostaurus_reference.out",
-        err = "logs/bostaurus_reference.err"
+        "logs/bostaurus_reference.log"
     threads: 4
     resources:
         mem_mb=10000,
         time="01:00:00",
-        qos="normal",
+        qos="normal"
     conda:
         "hostremoval"
     shell:
         """
+        (
+        set -euo pipefail
+
+        echo "== Downloading bosTau9 reference genome =="
         wget -O {output.fastagz} \
-             https://hgdownload.soe.ucsc.edu/goldenPath/bosTau9/bigZips/bosTau9.fa.gz
+            https://hgdownload.soe.ucsc.edu/goldenPath/bosTau9/bigZips/bosTau9.fa.gz 
 
-        gunzip -c {output.fastagz} > {output.fasta}
+        echo ""; echo "== Decompressing FASTA =="
+        gunzip -c {output.fastagz} > {output.fasta} 
 
-        bowtie2-build --threads {threads} --seed 42 {output.fasta} snakestream/host/bosTau9 \
-		     >> {log.out} 2> {log.err}
+        echo ""; echo "== Building Bowtie2 index =="
+        bowtie2-build --threads {threads} --seed 42 {output.fasta} snakestream/host/bosTau9
+        echo "== Done =="
+		) > {log} 2>&1
         """
 
-# Filter reads by minimum length using reformat.sh (from BBTools)
+# Quality control of raw reads
+# ─────────────────────────────────────────────────────────────
+rule fastqc_raw:
+    input:
+        r1 = "snakestream/reads_raw/{sample}_R1.fastq.gz",
+        r2 = "snakestream/reads_raw/{sample}_R2.fastq.gz"
+    output:
+        html_r1 = protected("snakestream/qc/raw/{sample}_R1_fastqc.html"),
+        html_r2 = protected("snakestream/qc/raw/{sample}_R2_fastqc.html")
+    log:
+        "logs/qc/trim/{sample}.log"
+    threads: 2
+    resources:
+        mem_mb=5000,
+        time="00:15:00",
+        qos="normal"
+    conda:
+        "fastqc"
+    shell:
+        "fastqc {input.r1} {input.r2} -t {threads} -o qc/raw > {log} 2>&1"
+
+# Trim raw reads and remove adapters using BBDuk
 # ─────────────────────────────────────────────────────────────
 rule bbduk_trim:
     input:
@@ -49,13 +76,12 @@ rule bbduk_trim:
         singleton = protected("snakestream/reads_trim/{sample}_sing.fastq.gz"),
         stats = protected("snakestream/reads_trim/{sample}_stats.txt")
     log:
-        out = "logs/bbduk_trim/{sample}.out",
-        err = "logs/bbduk_trim/{sample}.err"
+        "logs/bbduk_trim/{sample}.log"
     threads: 4
     resources:
         mem_mb=15000,
         time="00:30:00",
-        qos="normal",
+        qos="normal"
     conda:
         "bbmap"
     shell:
@@ -70,8 +96,29 @@ rule bbduk_trim:
             tpe tbo \
             qtrim=rl trimq=10 \
             ow=t ziplevel=6 \
-			> {log.out} 2> {log.err}
+			> {log} 2>&1
         """
+
+# Quality control of trimmed reads
+# ─────────────────────────────────────────────────────────────
+rule fastqc_trimmed:
+    input:
+        r1 = "snakestream/reads_trim/{sample}_R1_trim.fastq.gz",
+        r2 = "snakestream/reads_trim/{sample}_R2_trim.fastq.gz"
+    output:
+        html_r1 = protected("snakestream/qc/trim/{sample}_R1_trim_fastqc.html"),
+        html_r2 = protected("snakestream/qc/trim/{sample}_R2_trim_fastqc.html")
+    log:
+        "logs/qc/trim/{sample}.log"
+    threads: 2
+    resources:
+        mem_mb=2000,
+        time="00:10:00",
+        qos="normal"
+    conda:
+        "fastqc"
+    shell:
+        "fastqc {input.r1} {input.r2} -t {threads} -o qc/trim > {log} 2>&1"
 
 # Remove host reads using Bowtie2 and Samtools
 # ─────────────────────────────────────────────────────────────
@@ -89,13 +136,12 @@ rule remove_host:
     params:
         index = "snakestream/host/bosTau9"
     log:
-        out = "logs/remove_host/{sample}.log",
-        err = "logs/remove_host/{sample}.err" 
+        "logs/remove_host/{sample}.log"
     threads: 4
     resources:
         mem_mb=20000,
         time="01:00:00",
-        qos="normal",
+        qos="normal"
     conda:
         "hostremoval"
     shell:
@@ -119,5 +165,5 @@ rule remove_host:
         -0 /dev/null -s /dev/null -n {output.sorted}
 
         echo "== Done =="
-        ) > {log.out} 2> {log.err}
+        ) > {log} 2>&1
         """
