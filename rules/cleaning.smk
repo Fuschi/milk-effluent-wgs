@@ -42,27 +42,6 @@ rule bostaurus_reference:
 		) > {log} 2>&1
         """
 
-# Quality control of raw reads
-# ─────────────────────────────────────────────────────────────
-rule fastqc_raw:
-    input:
-        r1 = "snakestream/reads_raw/{sample}_R1.fastq.gz",
-        r2 = "snakestream/reads_raw/{sample}_R2.fastq.gz"
-    output:
-        html_r1 = protected("snakestream/qc/raw/{sample}_R1_fastqc.html"),
-        html_r2 = protected("snakestream/qc/raw/{sample}_R2_fastqc.html")
-    log:
-        "logs/qc/trim/{sample}.log"
-    threads: 2
-    resources:
-        mem_mb=5000,
-        time="00:15:00",
-        qos="normal"
-    conda:
-        "fastqc"
-    shell:
-        "fastqc {input.r1} {input.r2} -t {threads} -o qc/raw > {log} 2>&1"
-
 # Trim raw reads and remove adapters using BBDuk
 # ─────────────────────────────────────────────────────────────
 rule bbduk_trim:
@@ -98,27 +77,6 @@ rule bbduk_trim:
             ow=t ziplevel=6 \
 			> {log} 2>&1
         """
-
-# Quality control of trimmed reads
-# ─────────────────────────────────────────────────────────────
-rule fastqc_trimmed:
-    input:
-        r1 = "snakestream/reads_trim/{sample}_R1_trim.fastq.gz",
-        r2 = "snakestream/reads_trim/{sample}_R2_trim.fastq.gz"
-    output:
-        html_r1 = protected("snakestream/qc/trim/{sample}_R1_trim_fastqc.html"),
-        html_r2 = protected("snakestream/qc/trim/{sample}_R2_trim_fastqc.html")
-    log:
-        "logs/qc/trim/{sample}.log"
-    threads: 2
-    resources:
-        mem_mb=2000,
-        time="00:10:00",
-        qos="normal"
-    conda:
-        "fastqc"
-    shell:
-        "fastqc {input.r1} {input.r2} -t {threads} -o qc/trim > {log} 2>&1"
 
 # Remove host reads using Bowtie2 and Samtools
 # ─────────────────────────────────────────────────────────────
