@@ -26,5 +26,6 @@ snakemake --executor cluster-generic \
     --error=logs/slurm/{rule}/{rule}-{jobid}-%j.err \
     $( [ "{resources.requeue}" -eq "1" ] && echo "--requeue" ) \
     $( [ "{resources.trigger}" -eq "1" ] && echo "--reservation=prj-trigger --nodelist=mtx30" ) \
-    --time={resources.time}' \
+    --time={resources.time} \
+    --verbose' \
   "$@"
