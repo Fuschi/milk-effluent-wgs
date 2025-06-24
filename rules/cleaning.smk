@@ -73,6 +73,7 @@ rule bbduk_trim:
     shell:
         """
 		bbduk.sh \
+            -Xmx14g \
             in1={input.r1} in2={input.r2} \
             out1={output.r1_trim} out2={output.r2_trim} \
 		    outs={output.singleton}

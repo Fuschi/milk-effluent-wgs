@@ -27,5 +27,5 @@ snakemake --executor cluster-generic \
     $( [ "{resources.requeue}" -eq "1" ] && echo "--requeue" ) \
     $( [ "{resources.trigger}" -eq "1" ] && echo "--reservation=prj-trigger --nodelist=mtx30" ) \
     --time={resources.time} \
-    --verbose' \
+'
   "$@"
