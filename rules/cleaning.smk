@@ -5,7 +5,12 @@
 # - bbduk_trim
 # - remove_host
 # ─────────────────────────────────────────────
-
+#Generic Resources
+def default_resources():
+    return dict(
+        requeue=0,
+        trigger=1,
+    )
 # Download Bos taurus host genome from UCSC and build Bowtie2 index
 # ─────────────────────────────────────────────────────────────
 rule bostaurus_reference:
@@ -21,7 +26,8 @@ rule bostaurus_reference:
     resources:
         mem_mb=10000,
         time="01:00:00",
-        qos="normal"
+        qos="normal",
+        **default_resources(),
     conda:
         "hostremoval"
     shell:
@@ -60,7 +66,8 @@ rule bbduk_trim:
     resources:
         mem_mb=15000,
         time="00:30:00",
-        qos="normal"
+        qos="normal",
+        **default_resources(),
     conda:
         "bbmap"
     shell:
@@ -99,7 +106,8 @@ rule remove_host:
     resources:
         mem_mb=20000,
         time="01:00:00",
-        qos="normal"
+        qos="normal",
+        **default_resources(),
     conda:
         "hostremoval"
     shell:

@@ -4,7 +4,12 @@
 # - fastqc_raw / fastqc_trimmed
 # - seqkit_raw_reads / trim_reads / clean_reads
 # ─────────────────────────────────────────────
-
+#Generic Resources
+def default_resources():
+    return dict(
+        requeue=0,
+        trigger=1,
+    )
 # Raw reads QC and stats
 rule fastqc_raw:
     input:
@@ -17,7 +22,10 @@ rule fastqc_raw:
         "logs/qc/raw/{sample}.log"
     threads: 2
     resources:
-        mem_mb=5000, time="00:15:00", qos="normal"
+        mem_mb=5000, 
+        time="00:15:00", 
+        qos="normal",
+        **default_resources(),
     conda:
         "fastqc"
     shell:
@@ -30,7 +38,10 @@ rule seqkit_raw_reads:
         protected("snakestream/stats/seqkit_raw_reads.tsv")
     threads: 16
     resources:
-        mem_mb=20000, time="10:00:00", qos="normal"
+        mem_mb=20000, 
+        time="10:00:00", 
+        qos="normal",
+        **default_resources(),
     conda:
         "seqkit"
     shell:
@@ -48,7 +59,10 @@ rule fastqc_trimmed:
         "logs/qc/trim/{sample}.log"
     threads: 2
     resources:
-        mem_mb=2000, time="00:10:00", qos="normal"
+        mem_mb=2000, 
+        time="00:10:00", 
+        qos="normal",
+        **default_resources(),
     conda:
         "fastqc"
     shell:
@@ -75,7 +89,10 @@ rule seqkit_cleaned_reads:
         protected("snakestream/stats/seqkit_cleaned_reads.tsv")
     threads: 16
     resources:
-        mem_mb=20000, time="10:00:00", qos="normal"
+        mem_mb=20000, 
+        time="10:00:00", 
+        qos="normal",
+        **default_resources(),
     conda:
         "seqkit"
     shell:

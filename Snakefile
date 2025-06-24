@@ -11,7 +11,12 @@ SAMPLES = samples["sample_id"].tolist()
 BIOMES = samples["biome"].tolist()
 UNIQUE_BIOMES = sorted(set(BIOMES))
 SAMPLE_TO_BIOME = dict(zip(SAMPLES, BIOMES))
-
+#General resources
+def default_resources():
+    return dict(
+        requeue=0,
+        trigger=0,
+    )
 # ─────────────────────────────────────────────────────────────
 # RULE INCLUDES
 # ─────────────────────────────────────────────────────────────
@@ -29,3 +34,8 @@ rule all:
         "snakestream/stats/seqkit_raw_reads.tsv",
         "snakestream/stats/seqkit_trimmed_reads.tsv",
         "snakestream/stats/seqkit_cleaned_reads.tsv"
+    resources:
+        mem_mb=1000,
+        qos="normal",
+        time="00:05:00",
+        **default_resources(),
