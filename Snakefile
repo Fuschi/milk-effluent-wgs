@@ -31,9 +31,9 @@ rule all:
         expand("snakestream/reads_clean/{sample}_R{pe}_clean.fastq.gz", sample=SAMPLES, pe=["1", "2"]),
         expand("snakestream/qc/trim/{sample}_R{pe}_trim_fastqc.html", sample=SAMPLES, pe=["1", "2"]),
         expand("snakestream/qc/raw/{sample}_R{pe}_fastqc.html", sample=SAMPLES, pe=["1", "2"]),
-#        "snakestream/stats/seqkit_raw_reads.tsv",
-#        "snakestream/stats/seqkit_trimmed_reads.tsv",
-#        "snakestream/stats/seqkit_cleaned_reads.tsv"
+        "snakestream/stats/seqkit_raw_reads.tsv",
+        "snakestream/stats/seqkit_trimmed_reads.tsv",
+        "snakestream/stats/seqkit_cleaned_reads.tsv"
     resources:
         mem_mb=1000,
         qos="normal",
