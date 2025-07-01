@@ -106,7 +106,7 @@ rule remove_host:
     threads: 4
     resources:
         mem_mb=20000,
-        time="02:00:00",
+        time="03:00:00",
         qos="normal",
         **default_resources(),
     conda:
