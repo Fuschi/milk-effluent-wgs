@@ -105,7 +105,7 @@ rule remove_host:
         "logs/remove_host/{sample}.log"
     threads: 4
     resources:
-        mem_mb=20000,
+        mem_mb=64000,
         time="03:00:00",
         qos="normal",
         **default_resources(),
