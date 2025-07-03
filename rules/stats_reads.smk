@@ -75,7 +75,10 @@ rule seqkit_trimmed_reads:
         protected("snakestream/stats/seqkit_trimmed_reads.tsv")
     threads: 16
     resources:
-        mem_mb=20000, time="10:00:00", qos="normal"
+        mem_mb=20000,
+        time="10:00:00",
+        qos="normal",
+        **default_resources()
     conda:
         "seqkit"
     shell:
