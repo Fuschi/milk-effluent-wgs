@@ -11,6 +11,9 @@ SAMPLES = samples["sample_id"].tolist()
 BIOMES = samples["biome"].tolist()
 UNIQUE_BIOMES = sorted(set(BIOMES))
 SAMPLE_TO_BIOME = dict(zip(SAMPLES, BIOMES))
+BIOME_TO_SAMPLE={"Milk":[],"Sewage":[])
+for i in SAMPLE_TO_BIOME.keys():
+	BIOME_TO_SAMPLE[SAMPLE_TO_BIOME[i]]=BIOME_TO_SAMPLE[SAMPLE_TO_BIOME[i]]+[i]
 #General resources
 def default_resources():
     return dict(
