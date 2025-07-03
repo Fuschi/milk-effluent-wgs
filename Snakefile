@@ -11,7 +11,7 @@ SAMPLES = samples["sample_id"].tolist()
 BIOMES = samples["biome"].tolist()
 UNIQUE_BIOMES = sorted(set(BIOMES))
 SAMPLE_TO_BIOME = dict(zip(SAMPLES, BIOMES))
-BIOME_TO_SAMPLE={"Milk":[],"Sewage":[])
+BIOME_TO_SAMPLE={"Milk":[],"Sewage":[]}
 for i in SAMPLE_TO_BIOME.keys():
 	BIOME_TO_SAMPLE[SAMPLE_TO_BIOME[i]]=BIOME_TO_SAMPLE[SAMPLE_TO_BIOME[i]]+[i]
 #General resources
@@ -25,7 +25,7 @@ def default_resources():
 # ─────────────────────────────────────────────────────────────
 include: "rules/cleaning.smk"
 include: "rules/stats_reads.smk"
-
+include: "rules/assembly.smk"
 # ─────────────────────────────────────────────────────────────
 # FINAL TARGETS
 # ─────────────────────────────────────────────────────────────
@@ -36,7 +36,9 @@ rule all:
         expand("snakestream/qc/raw/{sample}_R{pe}_fastqc.html", sample=SAMPLES, pe=["1", "2"]),
         "snakestream/stats/seqkit_raw_reads.tsv",
         "snakestream/stats/seqkit_trimmed_reads.tsv",
-        "snakestream/stats/seqkit_cleaned_reads.tsv"
+        "snakestream/stats/seqkit_cleaned_reads.tsv",
+#        expand("snakestream/assembly_megahit_genome/Milk/{sample}/{sample}.contigs.fa",sample=BIOME_TO_SAMPLE["Milk"]),
+#        expand("snakestream/assembly_megahit_genome/Sewage/{sample}/{sample}.contigs.fa",sample=BIOME_TO_SAMPLE["Sewage"]),
     resources:
         mem_mb=1000,
         qos="normal",
