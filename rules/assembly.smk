@@ -27,7 +27,7 @@ rule assembly_megahit_genome:
     resources:
         qos="normal",
         mem_mb=32000,
-        time=240
+        time=240,
         **default_resources()
     shell:
         """
@@ -41,19 +41,20 @@ rule assembly_megahit_genome:
            > {log} 2>&1
         mv {params.contigs} {output.contigs}
         """
-#----------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------#
+##NOT WORIKING
 rule coassembly_megahit_genome:
     input:
-        R1=lambda wildcards: [f"reads_trimmed/{wildcards.sample_type}/{sample}_R1.trim.fastq.gz" for sample in sample_per_type[wildcards.sample_type]],
-        R2=lambda wildcards: [f"reads_trimmed/{wildcards.sample_type}/{sample}_R2.trim.fastq.gz" for sample in sample_per_type[wildcards.sample_type]]
+        R1="snakestream/reads_clean/{sample_type}/{sample}_R1.clean.fastq.gz",
+        R2="snakestream/reads_clean/{sample_type}/{sample}_R2.clean.fastq.gz",
     output:
-        contigs="coassembly_megahit_genome/{sample_type}/coassembly.final.contigs.fa"
+        contigs=protected("snakestream/coassembly_megahit_genome/{sample_type}/coassembly.final.contigs.fa")
     params:
         dir_out="coassembly_megahit_genome/{sample_type}",
-        tmp_dir="coassembly_megahit_genome/tmp/{sample_type}",
-        temp_R1="coassembly_megahit_genome/tmp/{sample_type}/all_R1.fastq.gz",
-        temp_R2="coassembly_megahit_genome/tmp/{sample_type}/all_R2.fastq.gz",
-        contigs="coassembly_megahit_genome/{sample_type}/final.contigs.fa"
+        tmp_dir=temp("coassembly_megahit_genome/tmp/{sample_type}"),
+        temp_R1=temp("coassembly_megahit_genome/tmp/{sample_type}/all_R1.fastq.gz"),
+        temp_R2=temp("coassembly_megahit_genome/tmp/{sample_type}/all_R2.fastq.gz"),
+        contigs=temp("coassembly_megahit_genome/{sample_type}/final.contigs.fa")
     conda: "megahit"
     log:
         out="logs/coassembly_megahit_genome/{sample_type}.out",
@@ -64,7 +65,8 @@ rule coassembly_megahit_genome:
     resources:
         qos="normal",
         mem_mb=192000,
-        time=1000
+        time=1000,
+        **default_resources()
     shell:
         """
         mkdir -p {params.tmp_dir}
